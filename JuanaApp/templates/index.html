@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Asistente Juana</title>
+    <style>
+        body { font-family: Arial; text-align: center; margin-top: 50px; }
+        button { padding: 15px 30px; font-size: 16px; cursor: pointer; transition: background-color 0.3s ease, transform 0.2s ease; font-family: Montserrat; font-weight: 600; text-transform: uppercase;}
+        button:hover { background-color:rgb(75, 5, 141); transform: scale(1.05); border: 1px dotted rgb(226, 0, 68); color: rgb(218, 218, 218); font-family: Montserrat; font-weight: 600; text-transform: uppercase; }
+        #status { margin-top: 20px; min-height: 50px; }
+        #comando { color: #666; margin-top: 10px; }
+        .title { font-family: Montserrat; font-weight: 900; text-transform: uppercase; color: #8a2be2; margin-bottom: 20px; }
+    </style>
+</head>
+<body>
+    {% csrf_token %} 
+    <h1 class="title">Asistente de Voz "Juana"</h1>
+    <button id="microfono">🎤 Hablar con Juana</button>
+    
+    <div id="status"></div>
+    <div id="comando"></div>
+
+    <script>
+        document.getElementById("microfono").addEventListener("click", async () => {
+            const statusElement = document.getElementById("status");
+            const comandoElement = document.getElementById("comando");
+            
+            statusElement.textContent = "Escuchando...";
+            comandoElement.textContent = "";
+            
+            try {
+                const response = await fetch("/escuchar/", {
+                    method: "POST",
+                    headers: {
+                        "X-CSRFToken": "{{ csrf_token }}"
+                    }
+                });
+                const data = await response.json();
+                
+                statusElement.textContent = data.status || data.error;
+                if(data.comando) {
+                    comandoElement.textContent = `Comando detectado: "${data.comando}"`;
+                }
+                
+            } catch (error) {
+                statusElement.textContent = "Error al conectar con el servidor";
+                console.error(error);
+            }
+        });
+    </script>
+</body>
+</html>
