@@ -1,0 +1,1 @@
+web: gunicorn JuanaApp.wsgi --log-file -
